@@ -274,25 +274,28 @@ function Painel() {
           </Card>
         ) : (
           <>
-            <div className="mb-6 flex flex-wrap items-center gap-3">
-              <span className="text-sm text-muted-foreground">Período:</span>
-              <Select value={dia} onValueChange={setDia}>
-                <SelectTrigger className="w-56">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="todos">Todos os dias</SelectItem>
-                  {dias.map((d) => (
-                    <SelectItem key={d} value={d}>
-                      {fmtData(d)}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <Button variant="secondary" onClick={exportarCsv}>
-                <Download /> Exportar ranking
-              </Button>
-            </div>
+            <Card className="mb-6 border-primary/30">
+              <CardContent className="flex flex-wrap items-center gap-3 p-4">
+                <span className="text-sm font-medium">Filtrar por data:</span>
+                <Select value={dia} onValueChange={setDia}>
+                  <SelectTrigger className="w-full sm:w-56">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="todos">Todos os dias</SelectItem>
+                    {dias.map((d) => (
+                      <SelectItem key={d} value={d}>
+                        {fmtData(d)}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <Button variant="secondary" onClick={exportarCsv}>
+                  <Download /> Exportar ranking
+                </Button>
+              </CardContent>
+            </Card>
+
 
             <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
               <Kpi label="Leituras analisadas" valor={fmtNum(leituras.length)} tone="info" />
