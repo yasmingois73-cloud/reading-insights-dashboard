@@ -65,7 +65,7 @@ function Kpi({
 }: {
   label: string;
   valor: string;
-  hint?: string;
+  hint?: string | undefined;
   tone?: "default" | "alerta" | "ok" | "info";
 }) {
   const toneClass =
