@@ -65,7 +65,8 @@ export async function parseArquivo(file: File): Promise<Dados> {
     const key = wb.SheetNames.find(
       (n) => n.toLowerCase().replace(/\s+/g, "") === name.toLowerCase().replace(/\s+/g, ""),
     );
-    return key ? XLSX.utils.sheet_to_json<Record<string, unknown>>(wb.Sheets[key]) : [];
+    const ws = key ? wb.Sheets[key] : undefined;
+    return ws ? XLSX.utils.sheet_to_json<Record<string, unknown>>(ws) : [];
   };
 
   const leituras: Leitura[] = sheet("Leituras")
