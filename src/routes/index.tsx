@@ -90,6 +90,7 @@ function Kpi({
 function Painel() {
   const [dados, setDados] = useState<Dados | null>(null);
   const [dia, setDia] = useState<string>("todos");
+  const [selecao, setSelecao] = useState<"sim" | "nao" | "pendente" | null>(null);
   const [carregando, setCarregando] = useState(false);
   const [erro, setErro] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
