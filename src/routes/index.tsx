@@ -90,6 +90,7 @@ function Kpi({
 function Painel() {
   const [dados, setDados] = useState<Dados | null>(null);
   const [dia, setDia] = useState<string>("todos");
+  const [selecao, setSelecao] = useState<"sim" | "nao" | "pendente" | null>(null);
   const [carregando, setCarregando] = useState(false);
   const [erro, setErro] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -191,7 +192,17 @@ function Painel() {
     return { sim, nao, pendente };
   }, [dados, dia]);
 
+  const categoria = (v: string) =>
+    v.startsWith("S") ? "sim" : v.startsWith("N") ? "nao" : "pendente";
+
+  const detalheRetorno = useMemo(() => {
+    if (!dados || !selecao) return [];
+    const base = dia === "todos" ? dados.retornos : dados.retornos.filter((r) => r.data === dia);
+    return base.filter((r) => categoria(r.leitura_correta) === selecao);
+  }, [dados, dia, selecao]);
+
   const totalExcedente = agravantes.reduce((s, l) => s + (l.consumo_atual - l.media_consumo), 0);
+
 
   function exportarCsv() {
     const linhas = [
