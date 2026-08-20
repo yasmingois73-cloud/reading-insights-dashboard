@@ -201,7 +201,22 @@ function Painel() {
     return base.filter((r) => categoria(r.leitura_correta) === selecao);
   }, [dados, dia, selecao]);
 
-  const totalExcedente = agravantes.reduce((s, l) => s + (l.consumo_atual - l.media_consumo), 0);
+  const retornosFiltrados = useMemo(() => {
+    if (!dados) return [];
+    return dia === "todos" ? dados.retornos : dados.retornos.filter((r) => r.data === dia);
+  }, [dados, dia]);
+
+  const refaturados = retornosFiltrados.filter((r) => r.refaturado).length;
+
+  const justificativas = useMemo(() => {
+    const map = new Map<string, number>();
+    for (const r of retornosFiltrados) {
+      const j = r.justificativa || "Sem retorno";
+      map.set(j, (map.get(j) ?? 0) + 1);
+    }
+    return Array.from(map, ([texto, qtd]) => ({ texto, qtd })).sort((a, b) => b.qtd - a.qtd);
+  }, [retornosFiltrados]);
+
 
 
   function exportarCsv() {
