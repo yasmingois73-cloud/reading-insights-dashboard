@@ -201,7 +201,22 @@ function Painel() {
     return base.filter((r) => categoria(r.leitura_correta) === selecao);
   }, [dados, dia, selecao]);
 
-  const totalExcedente = agravantes.reduce((s, l) => s + (l.consumo_atual - l.media_consumo), 0);
+  const retornosFiltrados = useMemo(() => {
+    if (!dados) return [];
+    return dia === "todos" ? dados.retornos : dados.retornos.filter((r) => r.data === dia);
+  }, [dados, dia]);
+
+  const refaturados = retornosFiltrados.filter((r) => r.refaturado).length;
+
+  const justificativas = useMemo(() => {
+    const map = new Map<string, number>();
+    for (const r of retornosFiltrados) {
+      const j = r.justificativa || "Sem retorno";
+      map.set(j, (map.get(j) ?? 0) + 1);
+    }
+    return Array.from(map, ([texto, qtd]) => ({ texto, qtd })).sort((a, b) => b.qtd - a.qtd);
+  }, [retornosFiltrados]);
+
 
 
   function exportarCsv() {
@@ -322,8 +337,9 @@ function Painel() {
               />
               <Kpi label="Leituristas envolvidos" valor={fmtNum(ranking.length)} />
               <Kpi
-                label="Excedente sobre a média"
-                valor={`${fmtNum(totalExcedente)} kWh`}
+                label="Refaturados"
+                valor={fmtNum(refaturados)}
+                hint={`${fmtNum(retornosFiltrados.length)} retorno(s) no período`}
                 tone="ok"
               />
             </section>
@@ -441,7 +457,11 @@ function Painel() {
                       <TableRow>
                         <TableHead>Leiturista</TableHead>
                         <TableHead>Instalação</TableHead>
+                        <TableHead className="text-right">Média</TableHead>
+                        <TableHead className="text-right">Atual</TableHead>
+                        <TableHead className="text-right">Var.</TableHead>
                         <TableHead>Justificativa</TableHead>
+                        <TableHead>Refaturado</TableHead>
                         <TableHead>Data</TableHead>
                       </TableRow>
                     </TableHeader>
@@ -455,13 +475,37 @@ function Painel() {
                             </span>
                           </TableCell>
                           <TableCell className="tabular-nums">{r.instalacao}</TableCell>
-                          <TableCell className="text-xs">{r.justificativa || "—"}</TableCell>
+                          <TableCell className="text-right tabular-nums">
+                            {fmtNum(r.media_consumo)}
+                          </TableCell>
+                          <TableCell className="text-right tabular-nums">
+                            {fmtNum(r.consumo_atual)}
+                          </TableCell>
+                          <TableCell className="text-right">
+                            <Badge variant={r.variacao >= 0.5 ? "destructive" : "secondary"}>
+                              {fmtPct(r.variacao)}
+                            </Badge>
+                          </TableCell>
+                          <TableCell className="max-w-64 text-xs">
+                            {r.justificativa || "—"}
+                            {r.observacao ? (
+                              <span className="block text-muted-foreground">
+                                Sup.: {r.observacao}
+                              </span>
+                            ) : null}
+                          </TableCell>
+                          <TableCell className="text-xs">
+                            <Badge variant={r.refaturado ? "destructive" : "secondary"}>
+                              {r.refaturado ? "Sim" : "Não"}
+                            </Badge>
+                            <span className="block text-muted-foreground">{r.status}</span>
+                          </TableCell>
                           <TableCell className="text-xs">{fmtData(r.data)}</TableCell>
                         </TableRow>
                       ))}
                       {!detalheRetorno.length ? (
                         <TableRow>
-                          <TableCell colSpan={4} className="text-center text-muted-foreground">
+                          <TableCell colSpan={8} className="text-center text-muted-foreground">
                             Nenhum registro nesta categoria.
                           </TableCell>
                         </TableRow>
@@ -472,6 +516,42 @@ function Painel() {
               </Card>
             ) : null}
 
+            <Card className="mt-6">
+              <CardHeader>
+                <CardTitle className="text-base">Justificativas dos leituristas</CardTitle>
+              </CardHeader>
+              <CardContent className="max-h-80 overflow-auto p-0">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Justificativa</TableHead>
+                      <TableHead className="text-right">Casos</TableHead>
+                      <TableHead className="text-right">% dos retornos</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {justificativas.map((j) => (
+                      <TableRow key={j.texto}>
+                        <TableCell className="text-sm">{j.texto}</TableCell>
+                        <TableCell className="text-right tabular-nums">{j.qtd}</TableCell>
+                        <TableCell className="text-right tabular-nums">
+                          {retornosFiltrados.length
+                            ? fmtPct(j.qtd / retornosFiltrados.length)
+                            : "—"}
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                    {!justificativas.length ? (
+                      <TableRow>
+                        <TableCell colSpan={3} className="text-center text-muted-foreground">
+                          Nenhum retorno no período.
+                        </TableCell>
+                      </TableRow>
+                    ) : null}
+                  </TableBody>
+                </Table>
+              </CardContent>
+            </Card>
 
             <Card className="mt-6">
               <CardHeader>

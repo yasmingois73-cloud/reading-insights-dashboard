@@ -21,6 +21,12 @@ export type Retorno = {
   leitura_correta: string;
   justificativa: string;
   status: string;
+  observacao: string;
+  media_consumo: number;
+  consumo_atual: number;
+  variacao: number;
+  leitura_informada: string;
+  refaturado: boolean;
   data: string;
 };
 
@@ -93,6 +99,12 @@ export async function parseArquivo(file: File): Promise<Dados> {
       leitura_correta: txt(r["leitura_correta?"]).toUpperCase(),
       justificativa: txt(r["justificativa_leiturista"]),
       status: txt(r["status"]),
+      observacao: txt(r["observacao_supervisor"]),
+      media_consumo: num(r["media_consumo"]),
+      consumo_atual: num(r["consumo_atual"]),
+      variacao: num(r["variacao_%"]),
+      leitura_informada: txt(r["leitura_informada_pelo_leiturista"]),
+      refaturado: /corrigid|refatur/i.test(txt(r["status"])),
       data: toISO(r["data"]),
     }))
     .filter((r) => r.instalacao);
