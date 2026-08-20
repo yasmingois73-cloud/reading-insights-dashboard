@@ -21,6 +21,12 @@ export type Retorno = {
   leitura_correta: string;
   justificativa: string;
   status: string;
+  observacao: string;
+  media_consumo: number;
+  consumo_atual: number;
+  variacao: number;
+  leitura_informada: string;
+  refaturado: boolean;
   data: string;
 };
 
