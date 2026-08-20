@@ -337,8 +337,9 @@ function Painel() {
               />
               <Kpi label="Leituristas envolvidos" valor={fmtNum(ranking.length)} />
               <Kpi
-                label="Excedente sobre a média"
-                valor={`${fmtNum(totalExcedente)} kWh`}
+                label="Refaturados"
+                valor={fmtNum(refaturados)}
+                hint={`${fmtNum(retornosFiltrados.length)} retorno(s) no período`}
                 tone="ok"
               />
             </section>
