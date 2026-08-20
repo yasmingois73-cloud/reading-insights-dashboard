@@ -372,20 +372,32 @@ function Painel() {
               <Card>
                 <CardHeader>
                   <CardTitle className="text-base">Retorno dos leituristas</CardTitle>
+                  <p className="text-xs text-muted-foreground">
+                    Clique em uma barra para ver os leituristas
+                  </p>
                 </CardHeader>
                 <CardContent className="h-80">
                   <ResponsiveContainer width="100%" height="100%">
                     <BarChart
                       data={[
-                        { nome: "Leitura correta", qtd: retornos.sim },
-                        { nome: "Erro confirmado", qtd: retornos.nao },
-                        { nome: "Pendente", qtd: retornos.pendente },
+                        { nome: "Leitura correta", qtd: retornos.sim, chave: "sim" },
+                        { nome: "Erro confirmado", qtd: retornos.nao, chave: "nao" },
+                        { nome: "Pendente", qtd: retornos.pendente, chave: "pendente" },
                       ]}
+                      onClick={(e) => {
+                        const c = e?.activePayload?.[0]?.payload?.chave as
+                          | "sim"
+                          | "nao"
+                          | "pendente"
+                          | undefined;
+                        if (c) setSelecao((p) => (p === c ? null : c));
+                      }}
                     >
                       <CartesianGrid vertical={false} stroke="var(--border)" />
                       <XAxis dataKey="nome" stroke="var(--muted-foreground)" fontSize={11} />
                       <YAxis stroke="var(--muted-foreground)" fontSize={12} />
                       <Tooltip
+                        cursor={{ fill: "var(--muted)", opacity: 0.3 }}
                         contentStyle={{
                           background: "var(--popover)",
                           border: "1px solid var(--border)",
@@ -393,9 +405,13 @@ function Painel() {
                           color: "var(--popover-foreground)",
                         }}
                       />
-                      <Bar dataKey="qtd" radius={[4, 4, 0, 0]}>
-                        {["var(--chart-4)", "var(--chart-3)", "var(--chart-2)"].map((c, i) => (
-                          <Cell key={i} fill={c} />
+                      <Bar dataKey="qtd" radius={[4, 4, 0, 0]} className="cursor-pointer">
+                        {(["sim", "nao", "pendente"] as const).map((k, i) => (
+                          <Cell
+                            key={k}
+                            fill={["var(--chart-4)", "var(--chart-3)", "var(--chart-2)"][i]}
+                            opacity={selecao && selecao !== k ? 0.35 : 1}
+                          />
                         ))}
                       </Bar>
                     </BarChart>
@@ -403,6 +419,59 @@ function Painel() {
                 </CardContent>
               </Card>
             </section>
+
+            {selecao ? (
+              <Card className="mt-6">
+                <CardHeader className="flex-row items-center justify-between space-y-0">
+                  <CardTitle className="text-base">
+                    {selecao === "sim"
+                      ? "Leitura correta"
+                      : selecao === "nao"
+                        ? "Erro confirmado (refaturar)"
+                        : "Pendentes"}{" "}
+                    · {fmtNum(detalheRetorno.length)} registro(s)
+                  </CardTitle>
+                  <Button variant="ghost" size="sm" onClick={() => setSelecao(null)}>
+                    Fechar
+                  </Button>
+                </CardHeader>
+                <CardContent className="max-h-96 overflow-auto p-0">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Leiturista</TableHead>
+                        <TableHead>Instalação</TableHead>
+                        <TableHead>Justificativa</TableHead>
+                        <TableHead>Data</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {detalheRetorno.map((r, i) => (
+                        <TableRow key={`${r.instalacao}-${i}`}>
+                          <TableCell>
+                            <span className="font-medium">{r.leiturista}</span>
+                            <span className="block text-xs text-muted-foreground">
+                              Sup. {r.supervisor}
+                            </span>
+                          </TableCell>
+                          <TableCell className="tabular-nums">{r.instalacao}</TableCell>
+                          <TableCell className="text-xs">{r.justificativa || "—"}</TableCell>
+                          <TableCell className="text-xs">{fmtData(r.data)}</TableCell>
+                        </TableRow>
+                      ))}
+                      {!detalheRetorno.length ? (
+                        <TableRow>
+                          <TableCell colSpan={4} className="text-center text-muted-foreground">
+                            Nenhum registro nesta categoria.
+                          </TableCell>
+                        </TableRow>
+                      ) : null}
+                    </TableBody>
+                  </Table>
+                </CardContent>
+              </Card>
+            ) : null}
+
 
             <Card className="mt-6">
               <CardHeader>
