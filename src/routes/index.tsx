@@ -457,7 +457,11 @@ function Painel() {
                       <TableRow>
                         <TableHead>Leiturista</TableHead>
                         <TableHead>Instalação</TableHead>
+                        <TableHead className="text-right">Média</TableHead>
+                        <TableHead className="text-right">Atual</TableHead>
+                        <TableHead className="text-right">Var.</TableHead>
                         <TableHead>Justificativa</TableHead>
+                        <TableHead>Refaturado</TableHead>
                         <TableHead>Data</TableHead>
                       </TableRow>
                     </TableHeader>
@@ -471,13 +475,37 @@ function Painel() {
                             </span>
                           </TableCell>
                           <TableCell className="tabular-nums">{r.instalacao}</TableCell>
-                          <TableCell className="text-xs">{r.justificativa || "—"}</TableCell>
+                          <TableCell className="text-right tabular-nums">
+                            {fmtNum(r.media_consumo)}
+                          </TableCell>
+                          <TableCell className="text-right tabular-nums">
+                            {fmtNum(r.consumo_atual)}
+                          </TableCell>
+                          <TableCell className="text-right">
+                            <Badge variant={r.variacao >= 0.5 ? "destructive" : "secondary"}>
+                              {fmtPct(r.variacao)}
+                            </Badge>
+                          </TableCell>
+                          <TableCell className="max-w-64 text-xs">
+                            {r.justificativa || "—"}
+                            {r.observacao ? (
+                              <span className="block text-muted-foreground">
+                                Sup.: {r.observacao}
+                              </span>
+                            ) : null}
+                          </TableCell>
+                          <TableCell className="text-xs">
+                            <Badge variant={r.refaturado ? "destructive" : "secondary"}>
+                              {r.refaturado ? "Sim" : "Não"}
+                            </Badge>
+                            <span className="block text-muted-foreground">{r.status}</span>
+                          </TableCell>
                           <TableCell className="text-xs">{fmtData(r.data)}</TableCell>
                         </TableRow>
                       ))}
                       {!detalheRetorno.length ? (
                         <TableRow>
-                          <TableCell colSpan={4} className="text-center text-muted-foreground">
+                          <TableCell colSpan={8} className="text-center text-muted-foreground">
                             Nenhum registro nesta categoria.
                           </TableCell>
                         </TableRow>
