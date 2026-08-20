@@ -516,6 +516,42 @@ function Painel() {
               </Card>
             ) : null}
 
+            <Card className="mt-6">
+              <CardHeader>
+                <CardTitle className="text-base">Justificativas dos leituristas</CardTitle>
+              </CardHeader>
+              <CardContent className="max-h-80 overflow-auto p-0">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Justificativa</TableHead>
+                      <TableHead className="text-right">Casos</TableHead>
+                      <TableHead className="text-right">% dos retornos</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {justificativas.map((j) => (
+                      <TableRow key={j.texto}>
+                        <TableCell className="text-sm">{j.texto}</TableCell>
+                        <TableCell className="text-right tabular-nums">{j.qtd}</TableCell>
+                        <TableCell className="text-right tabular-nums">
+                          {retornosFiltrados.length
+                            ? fmtPct(j.qtd / retornosFiltrados.length)
+                            : "—"}
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                    {!justificativas.length ? (
+                      <TableRow>
+                        <TableCell colSpan={3} className="text-center text-muted-foreground">
+                          Nenhum retorno no período.
+                        </TableCell>
+                      </TableRow>
+                    ) : null}
+                  </TableBody>
+                </Table>
+              </CardContent>
+            </Card>
 
             <Card className="mt-6">
               <CardHeader>
